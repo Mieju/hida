@@ -1,0 +1,11 @@
+[
+  { "party": "CDU/CSU", "votes": 28.5, "seats": 208 },
+  { "party": "AfD", "votes": 20.8, "seats": 152 },
+  { "party": "SPD", "votes": 16.4, "seats": 120 },
+  { "party": "Greens", "votes": 11.6, "seats": 85 },
+  { "party": "Left", "votes": 8.8, "seats": 64 },
+  { "party": "CSU", "votes": 6.0, "seats": 44 },
+  { "party": "SSW", "votes": 0.2, "seats": 1 },
+  { "party": "FDP", "votes": 4.3, "seats": 0 },
+  { "party": "BSW", "votes": 4.972, "seats": 0 }
+]
