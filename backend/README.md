@@ -1,6 +1,6 @@
 # Backend API
 
-This Express server serves election results for the frontend. The main endpoints are:
+This server uses Node's built-in `http` module, so no additional dependencies are required. The main endpoints are:
 
 - `GET /api/results` - returns the overall election results stored in `data/results.json`. Use the query parameter `state` to fetch data for a particular state, e.g. `/api/results?state=bayern`.
 - `POST /api/update-results` - downloads the latest election results for Germany and all states from the configured remote source and stores them in the `data` directory.

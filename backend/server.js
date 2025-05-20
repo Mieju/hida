@@ -1,8 +1,19 @@
-const express = require("express");
-const cors = require("cors");
+const http = require("http");
+const url = require("url");
 const fs = require("fs");
 const path = require("path");
-const app = express();
+
+// Convenience function for sending JSON responses with CORS headers
+function sendJson(res, status, data) {
+  const body = JSON.stringify(data);
+  res.writeHead(status, {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  });
+  res.end(body);
+}
 
 // List of German states used when fetching individual results
 const STATES = [
@@ -30,9 +41,6 @@ const GERMANY_URL =
 const STATE_URL_TEMPLATE =
   process.env.STATE_URL_TEMPLATE ||
   "https://example.com/election/{state}.json";
-
-app.use(cors());
-app.use(express.json());
 
 // Utility function to fetch JSON data from a URL
 async function fetchJson(url) {
@@ -69,25 +77,47 @@ async function updateResults() {
   }
 }
 
-// Return election results. Use `?state=` query parameter for state-specific data
-app.get("/api/results", (req, res) => {
-  const state = req.query.state;
-  const filePath = state
-    ? path.join(__dirname, "data", "states", `${state}.json`)
-    : path.join(__dirname, "data", "results.json");
+// Create HTTP server handling the REST endpoints
+const server = http.createServer((req, res) => {
+  const parsed = url.parse(req.url, true);
 
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: "Results not found" });
+  if (req.method === "OPTIONS") {
+    // CORS preflight
+    res.writeHead(204, {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    });
+    res.end();
+    return;
   }
 
-  const data = fs.readFileSync(filePath);
-  res.json(JSON.parse(data));
+  if (req.method === "GET" && parsed.pathname === "/api/results") {
+    const state = parsed.query.state;
+    const filePath = state
+      ? path.join(__dirname, "data", "states", `${state}.json`)
+      : path.join(__dirname, "data", "results.json");
+
+    if (!fs.existsSync(filePath)) {
+      sendJson(res, 404, { error: "Results not found" });
+      return;
+    }
+
+    const data = fs.readFileSync(filePath);
+    sendJson(res, 200, JSON.parse(data));
+    return;
+  }
+
+  if (req.method === "GET" && parsed.pathname === "/api/state-results") {
+    const data = fs.readFileSync(path.join(__dirname, "data", "state_results.json"));
+    sendJson(res, 200, JSON.parse(data));
+    return;
+  }
+
+  // Not found
+  sendJson(res, 404, { error: "Not found" });
 });
 
-app.get("/api/state-results", (req, res) => {
-  const data = fs.readFileSync("./data/state_results.json");
-  res.json(JSON.parse(data));
-
-app.listen(3001, () => {
+server.listen(3001, () => {
   console.log("Backend server running on http://localhost:3001");
 });
