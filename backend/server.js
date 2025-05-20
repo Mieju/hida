@@ -89,6 +89,14 @@ app.get("/api/state-results", (req, res) => {
   res.json(JSON.parse(data));
 });
 
-app.listen(3001, () => {
-  console.log("Backend server running on http://localhost:3001");
-});
+function start(port = 3001) {
+  return app.listen(port, () => {
+    console.log(`Backend server running on http://localhost:${port}`);
+  });
+}
+
+if (require.main === module) {
+  start();
+}
+
+module.exports = { app, start };
