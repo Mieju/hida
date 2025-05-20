@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 // Convenience function for sending JSON responses with CORS headers
+
 function sendJson(res, status, data) {
   const body = JSON.stringify(data);
   res.writeHead(status, {
@@ -102,7 +103,7 @@ const server = http.createServer((req, res) => {
       sendJson(res, 404, { error: "Results not found" });
       return;
     }
-
+    
     const data = fs.readFileSync(filePath);
     sendJson(res, 200, JSON.parse(data));
     return;
@@ -120,4 +121,17 @@ const server = http.createServer((req, res) => {
 
 server.listen(3001, () => {
   console.log("Backend server running on http://localhost:3001");
+
 });
+
+function start(port = 3001) {
+  return app.listen(port, () => {
+    console.log(`Backend server running on http://localhost:${port}`);
+  });
+}
+
+if (require.main === module) {
+  start();
+}
+
+module.exports = { app, start };
