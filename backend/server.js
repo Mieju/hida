@@ -84,16 +84,9 @@ app.get("/api/results", (req, res) => {
   res.json(JSON.parse(data));
 });
 
-// Endpoint to trigger fetching new data from remote sources
-app.post("/api/update-results", async (req, res) => {
-  try {
-    await updateResults();
-    res.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to update results" });
-  }
-});
+app.get("/api/state-results", (req, res) => {
+  const data = fs.readFileSync("./data/state_results.json");
+  res.json(JSON.parse(data));
 
 app.listen(3001, () => {
   console.log("Backend server running on http://localhost:3001");
